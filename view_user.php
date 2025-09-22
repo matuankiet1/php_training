@@ -1,4 +1,5 @@
 <?php
+include 'track_activity.php';
 require_once 'models/UserModel.php';
 $userModel = new UserModel();
 

@@ -1,6 +1,9 @@
 <?php
 // Start the session
-session_start();
+include 'track_activity.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 require_once 'models/UserModel.php';
 $userModel = new UserModel();
@@ -31,6 +34,7 @@ if (!empty($_POST['submit'])) {
 <head>
     <title>User form</title>
     <?php include 'views/meta.php' ?>
+    
 </head>
 <body>
 <?php include 'views/header.php'?>
@@ -82,6 +86,7 @@ if (!empty($_POST['submit'])) {
             </div>
         </div>
     </div>
-
+    <script src="activity.js"></script>
+    <script src="redisActivity.js"></script>
 </body>
 </html>
