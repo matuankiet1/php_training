@@ -10,6 +10,11 @@ require_once __DIR__ . '/helpers/csrf.php';
 $userModel = new UserModel();
 $user = null;
 
+// Helper escape
+function e(string $str): string {
+    return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
+}
+
 // Lấy ID an toàn từ GET
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 if ($id) {
@@ -34,7 +39,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         if (!empty($data['id'])) {
-            // Nếu để trống password thì giữ mật khẩu cũ
             if (empty($data['password'])) {
                 unset($data['password']);
             }
@@ -48,7 +52,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: list_users.php");
         exit;
     } catch (Exception $e) {
-        $_SESSION['error'] = "Error: " . $e->getMessage();
+        // Không nên hiển thị message raw từ Exception
+        error_log("form_user.php error: " . $e->getMessage());
+        $_SESSION['error'] = "An error occurred while saving user.";
     }
 }
 ?>
@@ -62,11 +68,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php include 'views/header.php'; ?>
 <div class="container">
 
-    <h2><?php echo $user ? "Edit User" : "Add New User"; ?></h2>
+    <h2><?= $user ? "Edit User" : "Add New User" ?></h2>
 
     <?php if (!empty($_SESSION['error'])): ?>
         <div class="alert alert-danger">
-            <?php echo htmlspecialchars($_SESSION['error']); ?>
+            <?= e($_SESSION['error']) ?>
         </div>
         <?php unset($_SESSION['error']); ?>
     <?php endif; ?>
@@ -74,38 +80,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <form method="POST" action="">
         <?= csrf_field() ?>
         <?php if ($user): ?>
-            <input type="hidden" name="id" value="<?php echo (int)$user['id']; ?>">
+            <input type="hidden" name="id" value="<?= (int)$user['id'] ?>">
         <?php endif; ?>
 
         <div class="form-group">
             <label>Username</label>
             <input type="text" name="name" required
-                   value="<?php echo htmlspecialchars($user['name'] ?? ''); ?>"
+                   value="<?= e($user['name'] ?? '') ?>"
                    class="form-control">
         </div>
 
         <div class="form-group">
             <label>Fullname</label>
             <input type="text" name="fullname"
-                   value="<?php echo htmlspecialchars($user['fullname'] ?? ''); ?>"
+                   value="<?= e($user['fullname'] ?? '') ?>"
                    class="form-control">
         </div>
 
         <div class="form-group">
             <label>Email</label>
             <input type="email" name="email"
-                   value="<?php echo htmlspecialchars($user['email'] ?? ''); ?>"
+                   value="<?= e($user['email'] ?? '') ?>"
                    class="form-control">    
         </div>
 
         <div class="form-group">
-            <label>Password <?php echo $user ? "(leave blank to keep old)" : ""; ?></label>
+            <label>Password <?= $user ? "(leave blank to keep old)" : "" ?></label>
             <input type="password" name="password"
-                   class="form-control" <?php echo $user ? "" : "required"; ?>>
+                   class="form-control" <?= $user ? "" : "required" ?>>
         </div>
 
         <button type="submit" class="btn btn-primary">
-            <?php echo $user ? "Update" : "Create"; ?>
+            <?= $user ? "Update" : "Create" ?>
         </button>
     </form>
 </div>
