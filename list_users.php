@@ -20,6 +20,13 @@ $users = $userModel->getUsers($params);
 $successMsg = $_SESSION['success'] ?? '';
 $errorMsg   = $_SESSION['error'] ?? '';
 unset($_SESSION['success'], $_SESSION['error']);
+
+/**
+ * Hàm helper để escape HTML an toàn
+ */
+function e(string $str): string {
+    return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -34,13 +41,13 @@ unset($_SESSION['success'], $_SESSION['error']);
 
     <?php if ($successMsg): ?>
         <div class="alert alert-success">
-            <?php echo htmlspecialchars($successMsg, ENT_QUOTES, 'UTF-8'); ?>
+            <?= e($successMsg) ?>
         </div>
     <?php endif; ?>
 
     <?php if ($errorMsg): ?>
         <div class="alert alert-danger">
-            <?php echo htmlspecialchars($errorMsg, ENT_QUOTES, 'UTF-8'); ?>
+            <?= e($errorMsg) ?>
         </div>
     <?php endif; ?>
 
@@ -60,23 +67,23 @@ unset($_SESSION['success'], $_SESSION['error']);
             <tbody>
                 <?php foreach ($users as $user): ?>
                 <tr>
-                    <td><?php echo htmlspecialchars($user['id'], ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td><?php echo htmlspecialchars($user['name'], ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td><?php echo htmlspecialchars($user['fullname'], ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td><?php echo htmlspecialchars($user['email'], ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td><?php echo htmlspecialchars($user['type'], ENT_QUOTES, 'UTF-8'); ?></td>
+                    <td><?= (int)$user['id'] ?></td>
+                    <td><?= e($user['name']) ?></td>
+                    <td><?= e($user['fullname']) ?></td>
+                    <td><?= e($user['email']) ?></td>
+                    <td><?= e($user['type']) ?></td>
                     <td>
-                        <a href="form_user.php?id=<?php echo urlencode($user['id']); ?>" title="Update">
+                        <a href="form_user.php?id=<?= e(urlencode((string)$user['id'])) ?>" title="Update">
                             <i class="fa fa-pencil-square-o"></i>
                         </a>
-                        <a href="view_user.php?id=<?php echo urlencode($user['id']); ?>" title="View">
+                        <a href="view_user.php?id=<?= e(urlencode((string)$user['id'])) ?>" title="View">
                             <i class="fa fa-eye"></i>
                         </a>
                         <!-- Delete bằng POST + CSRF -->
                         <form action="delete.php" method="POST" style="display:inline;"
                               onsubmit="return confirm('Are you sure you want to delete this user?');">
                             <?= csrf_field() ?>
-                            <input type="hidden" name="id" value="<?php echo (int)$user['id']; ?>">
+                            <input type="hidden" name="id" value="<?= (int)$user['id'] ?>">
                             <button type="submit" style="border:none;background:none;color:red;cursor:pointer;" title="Delete">
                                 <i class="fa fa-eraser"></i>
                             </button>
