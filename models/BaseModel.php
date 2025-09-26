@@ -1,74 +1,102 @@
 <?php
-require_once 'configs/database.php';
 
-abstract class BaseModel {
-    // Database connection
-    protected static $_connection;
+class BaseModel {
+
+    // Kết nối PDO dùng chung cho tất cả các model
+    protected static $_connection = null;
 
     public function __construct() {
+        if (self::$_connection === null) {
+            try {
+                // Cấu hình kết nối DB
+                $host = 'localhost';
+                $db   = 'app_web1';
+                $user = 'root';
+                $pass = '';
+                $charset = 'utf8mb4';
 
-        if (!isset(self::$_connection)) {
-            self::$_connection = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
-            if (self::$_connection->connect_errno) {
-                printf("Connect failed");
-                exit();
+                $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+                $options = [
+                    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                    PDO::ATTR_EMULATE_PREPARES   => false, // Bắt buộc dùng prepared statements thật
+                ];
+
+                self::$_connection = new PDO($dsn, $user, $pass, $options);
+
+            } catch (PDOException $e) {
+                die('Database connection failed: ' . $e->getMessage());
             }
         }
-
     }
 
     /**
-     * Query in database
-     * @param $sql
+     * Chạy câu lệnh SELECT trả về nhiều dòng
      */
-    protected function query($sql) {
-
-        $result = self::$_connection->query($sql);
-        return $result;
-    }
-
-    /**
-     * Select statement
-     * @param $sql
-     */
-    protected function select($sql) {
-        $result = $this->query($sql);
-        $rows = [];
-        if (!empty($result)) {
-            while ($row = $result->fetch_assoc()) {
-                $rows[] = $row;
-            }
+    protected function select($sql, $params = []) {
+        $stmt = self::$_connection->prepare($sql);
+        foreach ($params as $key => $val) {
+            $stmt->bindValue($key, $val);
         }
-        return $rows;
+        $stmt->execute();
+        return $stmt->fetchAll();
     }
 
     /**
-     * Delete statement
-     * @param $sql
-     * @return mixed
+     * Chạy câu lệnh SELECT trả về 1 dòng
      */
-    protected function delete($sql) {
-        $result = $this->query($sql);
-        return $result;
+    protected function selectOne($sql, $params = []) {
+        $stmt = self::$_connection->prepare($sql);
+        foreach ($params as $key => $val) {
+            $stmt->bindValue($key, $val);
+        }
+        $stmt->execute();
+        return $stmt->fetch();
     }
 
     /**
-     * Update statement
-     * @param $sql
-     * @return mixed
+     * Chạy câu lệnh INSERT
      */
-    protected function update($sql) {
-        $result = $this->query($sql);
-        return $result;
+    protected function insert($sql, $params = []) {
+        $stmt = self::$_connection->prepare($sql);
+        foreach ($params as $key => $val) {
+            $stmt->bindValue($key, $val);
+        }
+        $stmt->execute();
+        return self::$_connection->lastInsertId();
     }
 
     /**
-     * Insert statement
-     * @param $sql
+     * Chạy câu lệnh UPDATE
      */
-    protected function insert($sql) {
-        $result = $this->query($sql);
-        return $result;
+    protected function update($sql, $params = []) {
+        $stmt = self::$_connection->prepare($sql);
+        foreach ($params as $key => $val) {
+            $stmt->bindValue($key, $val);
+        }
+        return $stmt->execute();
     }
 
+    /**
+     * Chạy câu lệnh DELETE
+     */
+    protected function delete($sql, $params = []) {
+        $stmt = self::$_connection->prepare($sql);
+        foreach ($params as $key => $val) {
+            $stmt->bindValue($key, $val);
+        }
+        return $stmt->execute();
+    }
+
+    /**
+     * Chạy câu lệnh tùy ý (nếu cần)
+     */
+    protected function query($sql, $params = []) {
+        $stmt = self::$_connection->prepare($sql);
+        foreach ($params as $key => $val) {
+            $stmt->bindValue($key, $val);
+        }
+        $stmt->execute();
+        return $stmt;
+    }
 }
