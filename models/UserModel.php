@@ -134,8 +134,8 @@ public function searchUsers($keyword) {
 
         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
-        $sql = 'INSERT INTO users (name, fullname, email, password)
-                VALUES (:name, :fullname, :email, :password)';
+        $sql = 'INSERT INTO users (name, fullname, email, password, type)
+                VALUES (:name, :fullname, :email, :password, :type)';
 
         return $this->insert($sql, [
             ':name'     => $name,
