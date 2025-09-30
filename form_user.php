@@ -35,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'fullname' => trim($_POST['fullname'] ?? ''),   
         'email'    => trim($_POST['email'] ?? ''),
         'password' => trim($_POST['password'] ?? ''),
+        'type' => trim($_POST['type'] ?? ''),
     ];
 
     try {
@@ -108,6 +109,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <label>Password <?= $user ? "(leave blank to keep old)" : "" ?></label>
             <input type="password" name="password"
                    class="form-control" <?= $user ? "" : "required" ?>>
+        </div>
+
+         <div class="form-group">
+            <label>Type</label>
+            <input type="text" name="type"
+                   value="<?= e($user['type'] ?? '') ?>"
+                   class="form-control">    
         </div>
 
         <button type="submit" class="btn btn-primary">
