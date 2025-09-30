@@ -96,6 +96,7 @@ public function searchUsers($keyword) {
         $name     = trim((string)($input['name'] ?? $current['name'] ?? ''));
         $fullname = trim((string)($input['fullname'] ?? $current['fullname'] ?? ''));
         $email    = trim((string)($input['email'] ?? $current['email'] ?? ''));
+        $type    = trim((string)($input['type'] ?? $current['type'] ?? ''));
 
         if (!empty($input['password'])) {
             $passwordHash = password_hash($input['password'], PASSWORD_DEFAULT);
@@ -104,7 +105,7 @@ public function searchUsers($keyword) {
         }
 
         $sql = 'UPDATE users
-                SET name = :name, fullname = :fullname, email = :email, password = :password
+                SET name = :name, fullname = :fullname, email = :email, password = :password, type =:type
                 WHERE id = :id LIMIT 1';
 
         return $this->update($sql, [
@@ -112,6 +113,7 @@ public function searchUsers($keyword) {
             ':fullname' => $fullname,
             ':email'    => $email,
             ':password' => $passwordHash,
+            ':type'     => $type,
             ':id'       => $id
         ]);
     }
@@ -124,6 +126,7 @@ public function searchUsers($keyword) {
         $fullname = trim((string)($input['fullname'] ?? ''));
         $email    = trim((string)($input['email'] ?? ''));
         $password = $input['password'] ?? '';
+        $type    = trim((string)($input['type'] ?? ''));
 
         if ($name === '' || $password === '') {
             throw new InvalidArgumentException('Name and password are required');
@@ -138,7 +141,8 @@ public function searchUsers($keyword) {
             ':name'     => $name,
             ':fullname' => $fullname,
             ':email'    => $email,
-            ':password' => $passwordHash
+            ':password' => $passwordHash,
+            ':type'     => $type
         ]);
     }
 
@@ -156,10 +160,11 @@ public function searchUsers($keyword) {
             $like = "%{$escaped}%";
 
             // Dùng placeholders khác nhau cho mỗi lần xuất hiện
-            $sql .= ' WHERE name LIKE :kw1 OR email LIKE :kw2 OR fullname LIKE :kw3';
+            $sql .= ' WHERE name LIKE :kw1 OR email LIKE :kw2 OR fullname LIKE :kw3 OR type LIKE :kw4';
             $bindings[':kw1'] = $like;
             $bindings[':kw2'] = $like;
             $bindings[':kw3'] = $like;
+            $bindings[':kw4'] = $like;
         }
     }
 
